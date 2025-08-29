@@ -2,13 +2,19 @@
     "name": "litepie/settings",
     "description": "A comprehensive multi-level settings management package for Laravel",
     "type": "library",
-    "keywords": ["laravel", "settings", "configuration", "multi-tenant"],
+    "keywords": [
+        "laravel",
+        "settings",
+        "configuration",
+        "multi-tenant"
+    ],
     "homepage": "https://github.com/litepie/settings",
     "license": "MIT",
     "authors": [
         {
-            "name": "Litepie",
-            "email": "support@litepie.com"
+            "name": "Lavalite Team",
+            "email": "support@lavalite.org",
+            "homepage": "https://lavalite.org"
         }
     ],
     "require": {
