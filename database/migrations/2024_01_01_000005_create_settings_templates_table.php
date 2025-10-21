@@ -4,11 +4,14 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSettingsTemplatesTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        Schema::create(config('settings.database.table_prefix') . 'templates', function (Blueprint $table) {
+        Schema::create(config('settings.database.table_prefix') . 'templates', function (Blueprint $table): void {
             $table->id();
             $table->string('name');
             $table->text('description')->nullable();
@@ -21,8 +24,11 @@ class CreateSettingsTemplatesTable extends Migration
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists(config('settings.database.table_prefix') . 'templates');
     }
-}
+};

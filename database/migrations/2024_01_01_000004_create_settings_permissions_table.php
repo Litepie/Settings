@@ -4,25 +4,42 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSettingsPermissionsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        Schema::create(config('settings.database.table_prefix') . 'permissions', function (Blueprint $table) {
+        Schema::create(config('settings.database.table_prefix') . 'permissions', function (Blueprint $table): void {
             $table->id();
             $table->foreignId('setting_id')->constrained(config('settings.database.table_prefix') . 'settings')->onDelete('cascade');
-            $table->nullableMorphs('grantee');
+            
+            // Grantee (polymorphic) - explicitly defined to avoid naming conflicts
+            $table->unsignedBigInteger('grantee_id')->nullable();
+            $table->string('grantee_type')->nullable();
+            
             $table->string('permission'); // 'view', 'edit', 'delete'
-            $table->nullableMorphs('granted_by');
+            
+            // Granted by (polymorphic) - explicitly defined to avoid naming conflicts
+            $table->unsignedBigInteger('granted_by_id')->nullable();
+            $table->string('granted_by_type')->nullable();
+            
             $table->timestamps();
 
-            $table->unique(['setting_id', 'grantee_type', 'grantee_id', 'permission'], 'settings_permissions_unique');
-            $table->index(['grantee_type', 'grantee_id']);
+            // Explicit indexes with globally unique names
+            $table->unique(['setting_id', 'grantee_type', 'grantee_id', 'permission'], 'settings_permissions_unique_idx');
+            $table->index(['grantee_type', 'grantee_id'], 'settings_permissions_grantee_morph_idx');
+            $table->index(['granted_by_type', 'granted_by_id'], 'settings_permissions_granted_by_morph_idx');
+            $table->index('permission', 'settings_permissions_permission_idx');
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists(config('settings.database.table_prefix') . 'permissions');
     }
-}
+};

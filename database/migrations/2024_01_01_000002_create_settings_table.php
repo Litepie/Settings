@@ -4,17 +4,24 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSettingsTable extends Migration
+return new class extends Migration
 {
-    public function up()
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
     {
-        Schema::create(config('settings.database.table_prefix') . 'settings', function (Blueprint $table) {
+        Schema::create(config('settings.database.table_prefix') . 'settings', function (Blueprint $table): void {
             $table->id();
             $table->string('key');
             $table->longText('value')->nullable();
             $table->string('type')->default('string');
             $table->foreignId('group_id')->nullable()->constrained(config('settings.database.table_prefix') . 'settings_groups')->onDelete('set null');
-            $table->nullableMorphs('owner');
+            
+            // Owner (polymorphic) - explicitly defined to avoid naming conflicts
+            $table->unsignedBigInteger('owner_id')->nullable();
+            $table->string('owner_type')->nullable();
+            
             $table->boolean('is_encrypted')->default(false);
             $table->boolean('is_public')->default(true);
             $table->text('description')->nullable();
@@ -25,15 +32,23 @@ class CreateSettingsTable extends Migration
             $table->json('metadata')->nullable();
             $table->timestamps();
 
-            $table->unique(['key', 'owner_type', 'owner_id']);
-            $table->index(['owner_type', 'owner_id']);
-            $table->index(['key', 'type']);
-            $table->index(['is_public']);
+            // Explicit indexes with globally unique names
+            $table->unique(['key', 'owner_type', 'owner_id'], 'settings_key_owner_unique_idx');
+            $table->index(['owner_type', 'owner_id'], 'settings_owner_morph_idx');
+            $table->index(['key', 'type'], 'settings_key_type_idx');
+            $table->index('is_public', 'settings_is_public_idx');
+            $table->index('key', 'settings_key_idx');
+            $table->index('type', 'settings_type_idx');
+            $table->index('is_encrypted', 'settings_is_encrypted_idx');
+            $table->index('order', 'settings_order_idx');
         });
     }
 
-    public function down()
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
     {
         Schema::dropIfExists(config('settings.database.table_prefix') . 'settings');
     }
-}
+};
